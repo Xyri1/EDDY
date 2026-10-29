@@ -1,0 +1,207 @@
+A person stands idle and breathes calmly.
+A person stands still, listening, with the head slightly tilted.
+A person listens and nods slowly.
+A person nods twice quickly in agreement.
+A person shakes the head no.
+A person shakes the head slowly in disbelief.
+A person shrugs both shoulders.
+A person shrugs with the palms facing up.
+A person waves hello with the right hand.
+A person waves hello with the left hand.
+A person waves goodbye with both hands above the head.
+A person waves enthusiastically with the right arm.
+A person gives a small wave with the left hand.
+A person points forward with the right index finger.
+A person points to the left with the left hand.
+A person points to the right with the right hand.
+A person points at themselves with the right hand.
+A person points up at the sky.
+A person points down at the ground in front of them.
+A person crosses the arms over the chest.
+A person crosses the arms and taps the right foot impatiently.
+A person puts both hands on the hips.
+A person puts the right hand on the hip.
+A person scratches the head with the right hand.
+A person scratches the back of the neck with the left hand.
+A person rubs the chin thoughtfully with the right hand.
+A person thinks with the right hand on the chin and looks up.
+A person claps three times.
+A person claps excitedly above the head.
+A person claps slowly.
+A person gives a thumbs up with the right hand.
+A person gives two thumbs up.
+A person gives a thumbs down with the left hand.
+A person laughs and holds the stomach.
+A person laughs and leans back.
+A person laughs and slaps the right knee.
+A person giggles and covers the mouth with the left hand.
+A person covers the face with both hands.
+A person facepalms with the right hand.
+A person bows politely.
+A person bows deeply with the right hand on the chest.
+A person salutes with the right hand.
+A person blows a kiss with the right hand.
+A person makes a heart shape with both hands.
+A person stretches both arms above the head.
+A person stretches the arms out to the sides.
+A person yawns and stretches.
+A person rolls the shoulders backward.
+A person rolls the neck slowly.
+A person cracks the knuckles.
+A person rubs both hands together.
+A person rubs the eyes with both hands.
+A person looks around curiously.
+A person looks to the left, then to the right.
+A person looks over the right shoulder.
+A person looks over the left shoulder.
+A person looks up and turns in a slow circle.
+A person looks down at the feet.
+A person leans forward to look closer.
+A person leans back in surprise.
+A person jumps back in fear.
+A person flinches and raises both arms to protect the face.
+A person jumps up and down with excitement.
+A person jumps once in place.
+A person hops on the left foot.
+A person hops on the right foot three times.
+A person does a small happy dance.
+A person dances with the arms waving above the head.
+A person dances side to side to the music.
+A person spins around once.
+A person spins around twice quickly.
+A person turns left.
+A person turns right.
+A person turns around to face backward.
+A person turns 90 degrees to the right and waves.
+A person walks forward slowly.
+A person walks forward quickly.
+A person walks backward three steps.
+A person walks to the left.
+A person walks to the right.
+A person walks in a small circle clockwise.
+A person walks in a small circle counterclockwise.
+A person takes two steps forward and stops.
+A person takes one step back.
+A person steps to the left and then to the right.
+A person sidesteps to the right twice.
+A person tiptoes forward quietly.
+A person sneaks forward slowly while crouching.
+A person runs forward.
+A person jogs in place.
+A person runs in place quickly.
+A person marches in place.
+A person paces back and forth.
+A person walks forward and sits down.
+A person sits down on the floor.
+A person stands up from sitting.
+A person kneels on the right knee.
+A person kneels on both knees.
+A person crouches down.
+A person squats and stands up again.
+A person lies down on the back.
+A person gets up from the ground.
+A person does a push up.
+A person does three jumping jacks.
+A person does a squat.
+A person does lunges, left leg first.
+A person kicks forward with the right leg.
+A person kicks to the side with the left leg.
+A person punches forward with the right fist.
+A person punches with the left fist, then the right.
+A person throws a punch combo.
+A person blocks with both arms.
+A person raises both fists in victory.
+A person pumps the right fist in the air.
+A person celebrates with both arms up.
+A person raises the right hand to ask a question.
+A person raises the left hand.
+A person raises both hands in surrender.
+A person holds both palms out to say stop.
+A person beckons with the right hand to come closer.
+A person waves the left hand to say go away.
+A person counts to three on the right hand.
+A person holds up two fingers with the left hand.
+A person shows the number five with the right hand.
+A person makes an OK sign with the right hand.
+A person snaps the fingers of the right hand.
+A person taps the chin while thinking.
+A person taps the left wrist as if checking the time.
+A person checks a watch on the left wrist.
+A person holds a phone to the right ear.
+A person types on an invisible keyboard.
+A person drinks from a cup with the right hand.
+A person eats something with the right hand.
+A person picks something up from the ground with the right hand.
+A person picks something up with both hands.
+A person throws a ball with the right hand.
+A person throws something underhand with the left hand.
+A person catches a ball with both hands.
+A person pushes something heavy forward.
+A person pulls a rope toward themselves.
+A person lifts a heavy box.
+A person carries a box and walks forward.
+A person opens a door with the right hand.
+A person knocks on a door with the right hand.
+A person swings a baseball bat.
+A person swings a golf club.
+A person plays the air guitar.
+A person plays the drums in the air.
+A person conducts an orchestra with both hands.
+A person mimes playing the piano.
+A person pretends to fish.
+A person rows a boat.
+A person swims the breaststroke in the air.
+A person flaps both arms like a bird.
+A person walks like a zombie with the arms forward.
+A person walks like a robot.
+A person moves like a monkey.
+A person balances on one leg with the arms out.
+A person tries to keep balance and wobbles.
+A person stumbles forward and catches themselves.
+A person trips and almost falls.
+A person shivers from the cold and hugs themselves.
+A person fans the face with the right hand because it is hot.
+A person wipes sweat from the forehead.
+A person sneezes.
+A person coughs into the left elbow.
+A person holds the head with both hands in pain.
+A person holds the lower back in pain.
+A person limps forward on the right leg.
+A person walks tired with the shoulders slumped.
+A person walks proudly with the chest out.
+A person walks angrily with heavy steps.
+A person walks happily with a bounce.
+A person walks sadly with the head down.
+A person stomps the right foot angrily.
+A person stomps both feet in frustration.
+A person throws both hands up in frustration.
+A person clenches both fists in anger.
+A person points angrily with the right hand.
+A person sighs and drops the shoulders.
+A person sighs and looks down sadly.
+A person cries and wipes the eyes.
+A person hugs themselves.
+A person opens both arms for a hug.
+A person gestures while talking with both hands.
+A person explains something with the right hand moving.
+A person talks excitedly with big arm movements.
+A person argues and gestures with both hands.
+A person whispers with the right hand next to the mouth.
+A person shouts with both hands around the mouth.
+A person cups the right ear to listen.
+A person puts the right index finger on the lips to say quiet.
+A person nods while listening and smiles.
+A person tilts the head to the left in confusion.
+A person tilts the head to the right curiously.
+A person gasps and covers the mouth with both hands.
+A person reacts in surprise with both hands up.
+A person flexes both arms.
+A person poses like a superhero with the fists on the hips.
+A person strikes a pose with the right arm up.
+A person takes a selfie with the right hand.
+A person bows and then waves.
+A person waves, then turns and walks away.
+A person walks forward, stops, and waves with the right hand.
+A person sits down, then stands up and claps.
+A person turns left and raises both arms.
+A person crouches, then jumps straight up.

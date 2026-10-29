@@ -1,0 +1,11 @@
+# Demo dependencies (Python 3.11). Install ARDY's CUDA torch first if you want the GPU; see README.md.
+-r ../requirements.txt
+gradio>=6.8.0
+huggingface_hub
+# ARDY from GitHub, pinned. The PyPI package "ardy" is an unrelated AWS toolkit: never install it.
+ardy @ git+https://github.com/nv-tlabs/ardy@e706e27
+# ARDY's pinned viser fork (its demo extra). It installs without the web client; app.py builds it with Node.
+viser @ git+https://github.com/nv-tlabs/kimodo-viser.git@7c82ad8f8640bad9dff8ded5c5eee908eeb08f11
+trimesh>=4.0
+pandas>=2.0
+pillow>=9.0

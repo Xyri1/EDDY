@@ -1,0 +1,12 @@
+.env
+data/
+runs/
+adapters/
+datasets/
+ext/
+.venv*/
+__pycache__/
+*.safetensors
+*.npy
+*.npz
+demo/_dev/

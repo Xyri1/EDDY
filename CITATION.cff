@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use EDDY, please cite it as below. Please also cite ARDY."
+type: software
+title: "Llama-3-EDDY-Qwen3-Embedding-8B: Embedding aDapter for ARDY (EDDY)"
+abstract: "Built with Meta Llama 3. EDDY maps a Qwen3-Embedding-8B text vector to the LLM2Vec vector that NVIDIA's ARDY text-to-motion model expects, so ARDY runs without the LLM2Vec text encoder."
+authors:
+  - given-names: "Cyril"
+    family-names: "Tsui"
+repository-code: "https://github.com/Xyri1/EDDY"
+date-released: "2026-10-29"
+keywords:
+  - text-to-motion
+  - embeddings
+  - adapter
+  - ARDY
+license: Apache-2.0

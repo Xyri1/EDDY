@@ -1,0 +1,34 @@
+EDDY / Llama-3-EDDY-Qwen3-Embedding-8B
+Copyright 2026 Cyril Tsui
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Built with Meta Llama 3.
+The adapter's training targets were produced by LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised
+(McGill-NLP, MIT), which runs Meta Llama 3 weights. Meta Llama 3 is licensed under the
+Meta Llama 3 Community License, Copyright (c) Meta Platforms, Inc. All Rights Reserved.
+A copy of the agreement is in LICENSE-LLAMA3.txt and of the Acceptable Use Policy in
+USE_POLICY-LLAMA3.md. The adapter contains no Llama 3 weights. If the Meta Llama 3
+Community License applies to the adapter, it applies in addition to the Apache License.
+
+Training data includes Motion Data by Bones Studio.
+EDDY was not trained on Bones motion data. BONES-SEED motions (Bones SEED license) were used
+only to run the benchmark evaluation reported in the documentation.
+
+Training texts:
+- SEED-Timeline-Annotations, NVIDIA, CC BY 4.0
+  (https://huggingface.co/datasets/nvidia/SEED-Timeline-Annotations).
+  EDDY uses the labels as published and, in its joined training texts, concatenates
+  2 or 3 consecutive labels into one text.
+- HumanML3D captions, Guo et al., MIT (https://github.com/EricGuo5513/HumanML3D).
+
+Evaluation:
+- Kimodo Motion Generation Benchmark, NVIDIA, CC BY 4.0
+  (https://huggingface.co/datasets/nvidia/Kimodo-Motion-Gen-Benchmark).
+- ARDY-SOMA-RP-30FPS-Horizon60, NVIDIA Open Model Agreement; TMR-SOMA-RP-v1, NVIDIA Open
+  Model License. Neither is included in this distribution.
+
+Input model: Qwen3-Embedding-8B, Qwen team, Apache-2.0. Not included in this distribution.
+
+EDDY is an independent project. It is not made by or endorsed by NVIDIA, Meta, Alibaba
+or Bones Studio.

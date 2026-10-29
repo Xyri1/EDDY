@@ -1,0 +1,30 @@
+A person walks forward.
+A person walks backward.
+A person walks forward slowly.
+A person walks forward quickly.
+A person turns left.
+A person turns right.
+A person walks in a circle clockwise.
+A person walks in a circle counterclockwise.
+A person waves with the right hand.
+A person waves with the left hand.
+A person raises the right arm.
+A person raises the left arm.
+A person kicks with the right leg.
+A person kicks with the left leg.
+A person steps to the left.
+A person steps to the right.
+A person jumps once.
+A person jumps three times.
+A person takes two steps forward.
+A person takes four steps forward.
+A person sits down.
+A person stands up.
+A person crouches down.
+A person runs forward.
+A person claps the hands.
+A person nods the head.
+A person shakes the head.
+A person stands idle and looks around.
+A person dances happily.
+A person walks forward and sits down.
