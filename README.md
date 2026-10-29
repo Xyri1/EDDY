@@ -1,96 +1,147 @@
 # EDDY: Embedding aDapter for ARDY
 
-**Built with Meta Llama 3.** The published model is named **Llama-3-EDDY-Qwen3-Embedding-8B**, as the [Meta Llama 3 Community License](LICENSE-LLAMA3.txt) requires ([Acceptable Use Policy](USE_POLICY-LLAMA3.md)). The copies are from the `main` branch of github.com/meta-llama/llama3.
+Run NVIDIA's [ARDY](https://github.com/nv-tlabs/ardy) text-to-motion model without loading its 8B LLM2Vec text encoder. EDDY maps Qwen3-Embedding-8B embeddings into the vector space ARDY expects, so you can get text embeddings from an API and generate motion locally.
 
-EDDY (the project and code name; the model is Llama-3-EDDY-Qwen3-Embedding-8B) maps a Qwen3-Embedding-8B text vector to the LLM2Vec vector that NVIDIA's [ARDY](https://github.com/nv-tlabs/ardy) text-to-motion model expects. With EDDY, ARDY runs without its 8B LLM2Vec text encoder (about 14 GB of VRAM in bf16, and no provider hosts it). You embed the prompt with any host of Qwen3-Embedding-8B (local, OpenRouter, or another API), and EDDY turns that vector into the one ARDY needs. The adapter is one linear map (ridge regression, about 67 MB), fit on about 112k caption pairs.
+The adapter is a single linear map, trained with ridge regression on about 112,000 caption pairs. It is about 67 MB. With the embedding model off the GPU, ARDY and EDDY peaked at **0.96 GiB of PyTorch-allocated VRAM** in our batch-size-one evaluation. CUDA overhead and reserved memory are additional. See the [technical report](docs/report.md#end-to-end-and-hosted-qwen) for the measured setup.
 
-Scope: `ARDY-SOMA-RP-30FPS-Horizon60` and Qwen3-Embedding-8B (4096 dimensions, no instruction). Other ARDY checkpoints and other embedding models are not supported by the released adapter.
+**Built with Meta Llama 3.** The released model is [Llama-3-EDDY-Qwen3-Embedding-8B](https://huggingface.co/GhoXtie/Llama-3-EDDY-Qwen3-Embedding-8B). See [licensing and attribution](#license) below.
 
-> EDDY is an independent project. It is not made by or endorsed by NVIDIA.
+EDDY is an independent project. It is not made by or endorsed by NVIDIA.
 
 ## How it works
 
-```
-text -> embeddings API (Qwen3-Embedding-8B, 4096-d) -> EDDY (linear map) -> vector [1, 4096] -> ARDY
+```text
+Prompt → Qwen3-Embedding-8B → EDDY → ARDY → Motion
+         local or API       local   local
 ```
 
-ARDY uses one pooled 4096-d vector per prompt, so a translation between two embedding spaces can replace the encoder. LLM2Vec stays the teacher: EDDY is trained so that its output is close to the bf16 LLM2Vec vector of the same text. The goal is the same motion, not only the same vector, so the adapter was chosen by running ARDY and scoring the motions, not by vector error. An empty prompt becomes an exact zero vector and is never sent to the provider, because ARDY's classifier-free guidance needs a zero.
+ARDY takes one 4096-dimensional text vector per prompt. EDDY learns to map a Qwen embedding to the bf16 LLM2Vec vector for the same text. We evaluate the resulting motions to decide whether the adapter works; vector error is a secondary check.
+
+Empty prompts return an exact zero vector for ARDY's classifier-free guidance. They are never sent to the embedding provider.
+
+The released adapter supports **ARDY-SOMA-RP-30FPS-Horizon60** with **Qwen3-Embedding-8B**, using 4096 dimensions and no instruction prefix.
 
 ## Quick start
 
+Install [ARDY](https://github.com/nv-tlabs/ardy) following its setup instructions, then clone EDDY and download the adapter:
+
 ```bash
-git clone https://github.com/Xyri1/EDDY && cd EDDY
+git clone https://github.com/Xyri1/EDDY
+cd EDDY
 pip install -r requirements.txt
 hf download GhoXtie/Llama-3-EDDY-Qwen3-Embedding-8B eddy_qwen3-embedding-8b_4096.safetensors --local-dir .
 ```
 
-You also need ARDY itself ([install steps](https://github.com/nv-tlabs/ardy)) and its checkpoint, which is downloaded from Hugging Face on first use. Then:
+Copy `.env.example` to `.env` in the EDDY repository and set your embedding provider's base URL, model ID, and API key. For OpenRouter:
+
+```dotenv
+EMBEDDING_BASE_URL=https://openrouter.ai/api/v1
+EMBEDDING_MODEL=qwen/qwen3-embedding-8b
+EMBEDDING_API_KEY=your-api-key
+```
+
+`.env` is ignored by Git. Run the following example from the repository root:
 
 ```python
 import os
+
+from dotenv import load_dotenv
 from eddy_encoder import APIEmbedder, EddyTextEncoder
 from ardy.model.load_model import load_model
 
-os.environ["EMBEDDING_API_KEY"] = "<your key>"   # or set it in your shell
-emb = APIEmbedder("openrouter", "qwen/qwen3-embedding-8b", 4096, "https://openrouter.ai/api/v1")
-enc = EddyTextEncoder(emb, "eddy_qwen3-embedding-8b_4096.safetensors", device="cuda")
+load_dotenv(".env", encoding="utf8")
+
+emb = APIEmbedder(
+    "api",
+    os.environ["EMBEDDING_MODEL"],
+    4096,
+    os.environ["EMBEDDING_BASE_URL"],
+    key_env="EMBEDDING_API_KEY",
+)
+enc = EddyTextEncoder(
+    emb,
+    "eddy_qwen3-embedding-8b_4096.safetensors",
+    device="cuda",
+)
 model = load_model("ARDY-SOMA-RP-30FPS-Horizon60", text_encoder=enc)
-# Use `model` as in ARDY's README: the text encoder is already attached.
+# Continue with ARDY's generation workflow using this model.
 ```
 
-`APIEmbedder` works with any OpenAI-compatible `/embeddings` endpoint. Use the host's own model name. For a local model, use `QwenEmbedder("Qwen/Qwen3-Embedding-8B", 4096)` from the same file (weights load from Hugging Face), or any callable that maps a list of texts to an array of shape `[B, 4096]`.
+ARDY downloads its checkpoint from Hugging Face on first use.
 
-**You must serve the right model.** EDDY does not check which model is behind your endpoint. It only refuses a vector of the wrong size. Serve `Qwen/Qwen3-Embedding-8B` with 4096 dimensions and no instruction prefix. Another model with 4096 dimensions would run without an error and give bad motion.
+`APIEmbedder` accepts any OpenAI-compatible embeddings endpoint. Use the provider's model name for Qwen3-Embedding-8B. EDDY checks the vector size, but cannot verify which model produced it. A different model with the same dimensions will pass that check and produce incorrect conditioning.
+
+For local embeddings, use `QwenEmbedder("Qwen/Qwen3-Embedding-8B", 4096)` from `eddy_encoder.py`. You can also supply a callable that takes a list of texts and returns Qwen3-Embedding-8B vectors with shape `[B, 4096]`.
 
 ## Demo
 
-A local Gradio demo with ARDY's viewer is in [`demo/`](demo/README.md). You set an OpenAI-compatible embedding endpoint, an API key and a model name; the adapter is pulled from Hugging Face; ARDY runs on a GPU.
+The [Gradio demo](demo/README.md) lets you enter a prompt and view the generated motion in ARDY's 3D viewer. It supports GPU and CPU generation.
 
-## Model
+After installing the [demo dependencies](demo/README.md#install), run:
 
-| Model | Adapter file | Input model | Dims | Target | ARDY checkpoint | Size | Hugging Face |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Llama-3-EDDY-Qwen3-Embedding-8B | `eddy_qwen3-embedding-8b_4096.safetensors` | Qwen3-Embedding-8B (any host) | 4096 | LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised (bf16) | ARDY-SOMA-RP-30FPS-Horizon60 | 67 MB | [GhoXtie/Llama-3-EDDY-Qwen3-Embedding-8B](https://huggingface.co/GhoXtie/Llama-3-EDDY-Qwen3-Embedding-8B) |
+```bash
+python demo/app.py
+```
 
-The file header records the input model, the dimensions and the LLM2Vec checkpoint of the training vectors.
+Open <http://127.0.0.1:7860> and generate a motion. The demo reads the base URL, model ID, and API key from the repository's `.env` file and downloads the adapter automatically. You can override these settings in the page. Existing environment variables take precedence over `.env`.
+
+## Adapter
+
+Download [Llama-3-EDDY-Qwen3-Embedding-8B from Hugging Face](https://huggingface.co/GhoXtie/Llama-3-EDDY-Qwen3-Embedding-8B).
+
+| Property | Value |
+| --- | --- |
+| File | `eddy_qwen3-embedding-8b_4096.safetensors` |
+| Size | About 67 MB |
+| Architecture | Linear map; ridge regression, λ = 0.01 |
+| Input | Qwen3-Embedding-8B, 4096 dimensions, no instruction prefix |
+| Target | LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised, bf16 |
+| Supported ARDY checkpoint | ARDY-SOMA-RP-30FPS-Horizon60 |
+
+The adapter works with local or hosted Qwen3-Embedding-8B vectors. Its safetensors header records the input model, dimensions, provider, dtype, and target checkpoint used for training.
 
 ## Results
 
-Motion is scored with ARDY-SOMA-RP-30FPS-Horizon60 and the TMR-SOMA-RP-v1 evaluator. All numbers are R@3 (higher is better) against the same model driven by bf16 LLM2Vec, with the same seeds. Full protocol and tables: [docs/report.md](docs/report.md).
+We compare ARDY driven by EDDY against ARDY driven by bf16 LLM2Vec, using the same seeds. Scores below are R@3 from the TMR-SOMA-RP-v1 evaluator; higher is better. The [technical report](docs/report.md) gives the full protocol and results.
 
-| Check | LLM2Vec | EDDY | Difference |
+| Evaluation | LLM2Vec | EDDY | Difference |
 | --- | --- | --- | --- |
 | 500 SEED validation prompts, 5 seeds, local Qwen | 79.1 ± 2.1 | 78.1 ± 1.0 | −1.0 ± 2.2 (paired) |
 | Same prompts, Qwen from OpenRouter | 79.1 ± 2.1 | 77.2 ± 1.6 | −1.9 ± 1.1 (paired) |
 | 500 joined multi-event validation prompts | 87.2 ± 1.4 | 84.9 ± 0.8 | −2.3 |
-| Kimodo benchmark, timeline single (earlier ridge adapter) | 64.78 | 64.34 | −0.4 |
-| Kimodo benchmark, overview (earlier ridge adapter) | 75.90 | 73.94 | −2.0 (real) |
-| Kimodo benchmark, timeline multi (final adapter) | 77.19 | 73.38 | −3.8 (real) |
+| Kimodo benchmark, timeline single (earlier adapter) | 64.78 | 64.34 | −0.4 |
+| Kimodo benchmark, overview (earlier adapter) | 75.90 | 73.94 | −2.0 |
+| Kimodo benchmark, timeline multi (released adapter) | 77.19 | 73.38 | −3.8 |
 
-On the SEED validation prompts the loss is within the seed noise. On the benchmark it is about 0 to 4 R@3 points, largest on multi-event prompts. The benchmark was run once for the earlier adapter and once more for timeline multi after the final adapter was chosen (a second look, not used for the choice). Running ARDY end to end with `EddyTextEncoder` on 45 prompts gave R@3 94.2 ± 3.0 (EDDY) and 95.1 ± 1.7 (LLM2Vec). In a visual check of those 45 motions, no pair had a clearly better side.
+On SEED validation, the difference is within the observed seed variation. Benchmark scores are about 0 to 4 R@3 points lower, with the largest gap on multi-event prompts. The released adapter was not evaluated on the benchmark's overview or timeline-single cases.
 
-## Known limits
+The benchmark was run once with the earlier adapter. Timeline multi was evaluated again after the released adapter was selected; that second result was not used to make the selection.
 
-- **Multi-event prompts.** Prompts that join several events lose the most (benchmark timeline multi, −3.8 R@3 after training on joined texts, −6.0 before).
-- **Prompt style.** The adapter is trained and checked on texts in the style of ARDY's training labels: third person, one or two full sentences ("A person walks forward and waves."). Imperatives, "I" or "you", single words, negation and durations in the text were not in those labels and are out of scope. How much this changes the motion was not measured.
-- **Fine hand detail.** The worst vector errors on stream-style prompts are finger-level signs ("makes an OK sign").
-- **Hosted Qwen is at the edge.** Hosted (OpenRouter) vectors differ slightly from local ones (cosine 0.996 to 0.999). The motion check passes, but R@3 against LLM2Vec was lower in all 5 seeds.
-- **Latency.** One prompt through OpenRouter took a median of 3.7 s (maximum 38 s over 10 calls) from the author's machine. Local Qwen takes 0.09 s but needs about 14 GB of VRAM, so it does not fit beside ARDY on a 16 GB GPU.
-- **CPU.** Single runs after warm-up on a Ryzen 9 7900X (from the demo): one 6 s motion took 2.8 s on CPU and 0.4 to 0.7 s on an RTX 4080 SUPER. The first ARDY load took 1.2 s on CPU and 10 to 14 s on GPU (weights cached). An embedding request through OpenRouter took 1.4 to 2.2 s. These are single runs, not a benchmark.
-- **One checkpoint, one input model.** A new input model needs a new adapter (training takes minutes once the embeddings exist).
+An end-to-end run on 45 prompts scored 94.2 ± 3.0 with EDDY and 95.1 ± 1.7 with LLM2Vec. A visual comparison found no clear preference between the two sets of motions.
+
+## Limitations and performance
+
+- **Multi-event prompts:** the largest measured gap is on benchmark timeline multi, at −3.8 R@3 for the released adapter.
+- **Prompt style:** evaluation covers third-person descriptions such as “A person walks forward and waves.” The effect of imperatives, first- or second-person prompts, single words, negation, and durations in the text has not been measured.
+- **Hand detail:** finger-level signs, such as “makes an OK sign,” have some of the largest vector errors on stream-style prompts.
+- **Hosted embeddings:** OpenRouter vectors differ slightly from local Qwen vectors (cosine similarity 0.996–0.999). They passed the motion check, although R@3 was lower than LLM2Vec in all five seeds. Other hosts have not been tested.
+- **API latency:** a 10-call OpenRouter check had a median of 3.7 s and a maximum of 38 s from the author's machine. Separate demo measurements took 1.4–2.2 s per embedding request. Local Qwen took 0.09 s per prompt but used about 14 GB of VRAM.
+- **Generation time:** after warm-up, a 6 s motion took 0.4–0.7 s on an RTX 4080 SUPER and 2.8 s on a Ryzen 9 7900X CPU. Initial ARDY loading took 10–14 s on GPU and 1.2 s on CPU, with weights cached. These are individual demo measurements, not a benchmark.
+- **Compatibility:** only the ARDY checkpoint and embedding model listed above are supported. A different input model needs a separately trained adapter.
 
 ## Training and evaluation
 
-`eddy.py` is the training and evaluation CLI (`prepare`, `reword-sources`, `seed-joins`, `embed`, `pilot`, `train`, `motion-prompts`, `motion-generate`, `motion-score`). `test_eddy.py` is a synthetic end-to-end self-check: run `python test_eddy.py` after every change.
+`eddy.py` provides the data preparation, embedding, training, and motion evaluation commands. Run `python eddy.py --help` for the command list. `test_eddy.py` is a synthetic end-to-end self-check; run `python test_eddy.py` after changes to `eddy.py` or `eddy_encoder.py`.
 
-The training data is not included. Rebuild it from:
+Training data and embeddings are not included. The adapter was trained on HumanML3D captions, SEED labels, and joined multi-event texts, paired with Qwen3-Embedding-8B and bf16 LLM2Vec vectors. The [report](docs/report.md#3-data) describes the sources and grouped splits. Rebuilding the text pairs does not require gated BONES-SEED motions; running the motion benchmark does.
 
-- HumanML3D captions ([HumanML3D](https://github.com/EricGuo5513/HumanML3D));
-- [SEED-Timeline-Annotations](https://huggingface.co/datasets/nvidia/SEED-Timeline-Annotations) and the `splits/` files of the [Kimodo Motion Generation Benchmark](https://huggingface.co/datasets/nvidia/Kimodo-Motion-Gen-Benchmark) (neither needs the gated BONES-SEED motions; the benchmark motion cases do);
-- LLM2Vec targets: made with ARDY's own bf16 LLM2Vec, alone on the GPU, one prompt per call;
-- Qwen3-Embedding-8B vectors of the same texts.
+With the prepared datasets, the released adapter is fit using:
 
-The adapter used for the results is: `python eddy.py train --data data/full data/seed data/join --select seed --linear-only --init ridge --steps 0` (ridge, λ = 0.01). Details: [docs/report.md](docs/report.md#3-data).
+```bash
+python eddy.py train --data data/full data/seed data/join --select seed --linear-only --init ridge --steps 0
+```
+
+This fits ridge regression with λ = 0.01. SEED validation determines the selection.
 
 ## Citation
 

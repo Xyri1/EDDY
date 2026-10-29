@@ -24,6 +24,8 @@ pip install -r demo/requirements.txt
 
 ## Run
 
+Copy `.env.example` to `.env` in the repository root. Set `EMBEDDING_BASE_URL`, `EMBEDDING_MODEL`, and `EMBEDDING_API_KEY` for your embedding provider. The demo loads this file at startup. Existing environment variables take precedence.
+
 ```
 python demo/app.py                     # open http://127.0.0.1:7860
 python demo/app.py --adapter path/to/eddy_qwen3-embedding-8b_4096.safetensors
@@ -33,9 +35,9 @@ Options: `--port` (7860), `--viewer-port` (8090, the viewer's local server; the 
 
 ## Settings
 
-- **Embedding endpoint:** any OpenAI-compatible `/embeddings` base URL. Default `https://openrouter.ai/api/v1`.
-- **API key:** kept in this process's memory only. Never written to disk or logged.
-- **Model name:** default `qwen/qwen3-embedding-8b`.
+- **Embedding endpoint:** initialized from `EMBEDDING_BASE_URL`. Use an OpenAI-compatible base URL, without `/embeddings`. Defaults to `https://openrouter.ai/api/v1` if unset.
+- **API key:** read from `EMBEDDING_API_KEY` in `.env` or the environment. Leave the Settings field empty to use it, or enter an override. The configured key stays on the server; the app never writes keys to disk or logs them.
+- **Model name:** initialized from `EMBEDDING_MODEL`. Use your provider's model ID for Qwen3-Embedding-8B. Defaults to `qwen/qwen3-embedding-8b` if unset.
 - **Device:** auto, cuda or cpu.
 - **Adapter file:** a local path. Empty means download from Hugging Face.
 - **Test connection:** embeds one prompt, reports the vector size (must be 4096) and the latency. It cannot tell

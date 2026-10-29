@@ -3,7 +3,7 @@
     python demo/app.py [--adapter PATH] [--port 7860] [--viewer-port 8090]
 
 No LLM2Vec encoder is loaded. Text -> your embedding endpoint -> EDDY (4096 -> 4096) -> ARDY -> motion.
-The API key lives in this process only: it is never written to disk or logged."""
+The API key is read from .env or Settings; the app never writes it to disk or logs it."""
 import argparse
 import html
 import os
@@ -13,9 +13,11 @@ import tempfile
 import threading
 import time
 from pathlib import Path
+from dotenv import load_dotenv
 
 os.environ.setdefault("PYTHONUTF8", "1")
 HERE = Path(__file__).resolve().parent
+load_dotenv(HERE.parent / ".env", encoding="utf8")
 sys.path.insert(0, str(HERE.parent))  # repo root: eddy_encoder.py
 sys.path.insert(0, str(HERE))
 
@@ -26,8 +28,8 @@ from eddy_encoder import APIEmbedder, EddyTextEncoder
 
 HF_REPO = "GhoXtie/Llama-3-EDDY-Qwen3-Embedding-8B"
 HF_FILE = "eddy_qwen3-embedding-8b_4096.safetensors"
-DEFAULT_URL = "https://openrouter.ai/api/v1"
-DEFAULT_MODEL = "qwen/qwen3-embedding-8b"
+DEFAULT_URL = os.environ.get("EMBEDDING_BASE_URL", "https://openrouter.ai/api/v1")
+DEFAULT_MODEL = os.environ.get("EMBEDDING_MODEL", "qwen/qwen3-embedding-8b")
 KEY_ENV = "EDDY_DEMO_API_KEY"  # set from the page's password field, in memory only
 ARDY_MODEL = "soma"
 
@@ -60,9 +62,10 @@ def esc(s):
 
 
 def make_embedder(url, key, model):
-    if not (key or "").strip():
-        raise gr.Error("Enter your API key in Settings.")
-    os.environ[KEY_ENV] = key.strip()
+    key = (key or "").strip() or os.environ.get("EMBEDDING_API_KEY", "").strip()
+    if not key:
+        raise gr.Error("Set EMBEDDING_API_KEY in .env or enter your API key in Settings.")
+    os.environ[KEY_ENV] = key
     # dims=4096 is checked on the response; the request does not ask for a size
     return APIEmbedder("api", model.strip(), 4096, url.strip(), key_env=KEY_ENV, send_dims=False)
 
@@ -258,7 +261,7 @@ def build_ui():
                 go = gr.Button("Generate motion", variant="primary", elem_id="go")
                 with gr.Accordion("Settings", open=True, elem_id="settings"):
                     url = gr.Textbox(label="Embedding endpoint (OpenAI-compatible base URL)", value=DEFAULT_URL)
-                    key = gr.Textbox(label="API key (kept in memory only)", type="password", value="")
+                    key = gr.Textbox(label="API key override (optional if set in .env)", type="password", value="")
                     model = gr.Textbox(label="Model name", value=DEFAULT_MODEL)
                     device = gr.Radio(["auto", "cuda", "cpu"], value="auto", label="Device")
                     adapter = gr.Textbox(label="Adapter file (empty: download from Hugging Face)",

@@ -1,5 +1,6 @@
 numpy>=1.26
 torch>=2.2
 safetensors>=0.4
+python-dotenv>=1.0
 # Optional: local Qwen3-Embedding (QwenEmbedder, the embed command)
 # transformers>=4.51
