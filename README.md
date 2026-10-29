@@ -1,5 +1,8 @@
 # EDDY: Embedding aDapter for ARDY
 
+[![Hugging Face](https://img.shields.io/badge/Hugging_Face-Model-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/GhoXtie/Llama-3-EDDY-Qwen3-Embedding-8B)
+[![ModelScope](https://img.shields.io/badge/ModelScope-Model-624AFF)](https://modelscope.cn/models/CyrilTsui/Llama-3-EDDY-Qwen3-Embedding-8B)
+
 Run NVIDIA's [ARDY](https://github.com/nv-tlabs/ardy) text-to-motion model without loading its 8B LLM2Vec text encoder. EDDY maps Qwen3-Embedding-8B embeddings into the vector space ARDY expects, so you can get text embeddings from an API and generate motion locally.
 
 The adapter is a single linear map, trained with ridge regression on about 112,000 caption pairs. It is about 67 MB. With the embedding model off the GPU, ARDY and EDDY peaked at **0.96 GiB of PyTorch-allocated VRAM** in our batch-size-one evaluation. CUDA overhead and reserved memory are additional. See the [technical report](docs/report.md#end-to-end-and-hosted-qwen) for the measured setup.
